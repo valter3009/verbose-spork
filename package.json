@@ -1,0 +1,27 @@
+{
+  "name": "universal-ai-assistant",
+  "version": "1.0.0",
+  "description": "Универсальный ИИ-ассистент на базе Claude для Telegram",
+  "main": "dist/bot.js",
+  "scripts": {
+    "start": "node dist/bot.js",
+    "dev": "ts-node src/bot.ts",
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "keywords": ["telegram", "bot", "claude", "ai", "assistant"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "telegraf": "^4.16.3",
+    "pg": "^8.11.3",
+    "dotenv": "^16.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@types/pg": "^8.10.9",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2"
+  }
+}
