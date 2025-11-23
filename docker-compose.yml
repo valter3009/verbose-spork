@@ -1,12 +1,11 @@
-version: '3.8'
-
 services:
   crypto-bot:
     build: .
     container_name: crypto-telegram-bot
     restart: unless-stopped
     environment:
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      # Default token - you can override by creating .env file
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-6905014359:AAEoEDNEgCl-5qRVc2srN8pTUrSnhEs09SA}
       - DATABASE_PATH=/app/data/crypto_bot.db
     volumes:
       # Persist database
