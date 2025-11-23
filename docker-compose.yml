@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  crypto-bot:
+    build: .
+    container_name: crypto-telegram-bot
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - DATABASE_PATH=/app/data/crypto_bot.db
+    volumes:
+      # Persist database
+      - ./data:/app/data
+      # Mount source code for development (comment out for production)
+      # - ./src:/app/src
+    networks:
+      - crypto-bot-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  crypto-bot-network:
+    driver: bridge
