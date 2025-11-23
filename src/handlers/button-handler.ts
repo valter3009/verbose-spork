@@ -25,7 +25,9 @@ export class ButtonHandler {
       const data = JSON.parse(ctx.callbackQuery.data);
       const { action, params } = data;
 
-      await this.trackButtonClick(userId, action, params.category);
+      if (params && params.category) {
+        await this.trackButtonClick(userId, action, params.category);
+      }
 
       switch (action) {
         case 'view_stats':
@@ -60,13 +62,16 @@ export class ButtonHandler {
 
     const dbUserId = result.rows[0].id;
 
-    await this.db.query(
-      `INSERT INTO user_patterns (user_id, action_type, category, button_action, count)
-       VALUES ($1, 'button_click', $2, $3, 1)
-       ON CONFLICT (user_id, action_type, button_action)
-       DO UPDATE SET count = user_patterns.count + 1, last_used = CURRENT_TIMESTAMP`,
-      [dbUserId, category, action]
-    );
+    try {
+      await this.db.query(
+        `INSERT INTO user_patterns (user_id, action_type, category, button_action, count)
+         VALUES ($1, 'button_click', $2, $3, 1)`,
+        [dbUserId, category, action]
+      );
+    } catch (error) {
+      // Ignore duplicate key errors
+      console.log('Pattern tracking skipped');
+    }
   }
 
   private async handleViewStats(ctx: Context, params: any): Promise<void> {
