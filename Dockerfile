@@ -1,32 +1,13 @@
-# Use Python 3.11 slim image
-FROM python:3.11-slim
+FROM node:20-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+COPY package*.json ./
 
-# Copy requirements first for better caching
-COPY requirements.txt .
+RUN npm ci --only=production
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy application code
 COPY . .
 
-# Create data directory for database
-RUN mkdir -p /app/data
+RUN npm run build
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/app
-
-# Make bot.py executable
-RUN chmod +x bot.py
-
-# Run the bot
-CMD ["python", "bot.py"]
+CMD ["npm", "start"]
