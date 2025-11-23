@@ -125,8 +125,27 @@ export class SchemaManager {
 
     if (categoryInfo.storage_type === 'table') {
       const tableName = subcategory ? `${category}_${subcategory}` : category;
-      const keys = Object.keys(data);
-      const values = Object.values(data);
+
+      // Filter data to only include fields that exist in schema
+      const schema = categoryInfo.schema;
+      const validData: Record<string, any> = {};
+
+      if (schema && schema.fields) {
+        for (const [key, value] of Object.entries(data)) {
+          if (schema.fields[key]) {
+            validData[key] = value;
+          }
+        }
+      }
+
+      const keys = Object.keys(validData);
+      const values = Object.values(validData);
+
+      if (keys.length === 0) {
+        console.log('No valid fields to insert');
+        return;
+      }
+
       const placeholders = keys.map((_, i) => `$${i + 1}`).join(', ');
 
       await this.db.query(
