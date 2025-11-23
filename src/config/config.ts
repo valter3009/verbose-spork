@@ -8,7 +8,7 @@ export const config = {
   },
   claude: {
     apiKey: process.env.CLAUDE_API_KEY || '',
-    model: process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022',
+    model: process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20240620',
   },
   database: {
     url: process.env.DATABASE_URL || 'postgresql://localhost:5432/assistant_db',
