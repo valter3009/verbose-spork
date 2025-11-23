@@ -60,10 +60,16 @@ export class SchemaManager {
 
       if (schema.indexes && schema.indexes.length > 0) {
         for (const indexField of schema.indexes) {
-          const indexName = `idx_${tableName}_${indexField}`;
-          await this.db.query(`
-            CREATE INDEX IF NOT EXISTS ${indexName} ON ${tableName}(${indexField})
-          `);
+          if (schema.fields[indexField]) {
+            const indexName = `idx_${tableName}_${indexField}`;
+            try {
+              await this.db.query(`
+                CREATE INDEX IF NOT EXISTS ${indexName} ON ${tableName}(${indexField})
+              `);
+            } catch (error) {
+              console.log(`Warning: Could not create index on ${indexField}:`, error);
+            }
+          }
         }
       }
 
