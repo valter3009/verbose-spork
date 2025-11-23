@@ -1,5 +1,5 @@
 import { Pool, PoolClient } from 'pg';
-import { config } from '../../config/config';
+import { config } from '../config/config';
 
 export class Database {
   private pool: Pool;

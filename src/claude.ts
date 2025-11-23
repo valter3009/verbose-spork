@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { config } from '../config/config';
+import { config } from './config/config';
 import { ClaudeResponse } from './types/claude-response';
 import { buildSystemPrompt } from './prompts/system-prompt';
 

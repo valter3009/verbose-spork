@@ -166,7 +166,7 @@ export class SchemaManager {
          ORDER BY created_at DESC LIMIT $4`,
         [userId, category, subcategory, limit]
       );
-      return result.rows.map((r) => r.data);
+      return result.rows.map((r: any) => r.data);
     }
   }
 }

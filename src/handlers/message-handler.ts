@@ -95,7 +95,7 @@ export class MessageHandler {
     );
     return result.rows
       .reverse()
-      .map((r) => `${r.role}: ${r.message}`);
+      .map((r: any) => `${r.role}: ${r.message}`);
   }
 
   private async saveConversationMessage(

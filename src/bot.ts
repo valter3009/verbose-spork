@@ -1,5 +1,5 @@
 import { Telegraf } from 'telegraf';
-import { config, validateConfig } from '../config/config';
+import { config, validateConfig } from './config/config';
 import { Database } from './database/db';
 import { MessageHandler } from './handlers/message-handler';
 import { ButtonHandler } from './handlers/button-handler';
