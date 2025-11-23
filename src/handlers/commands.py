@@ -48,8 +48,8 @@ class CommandHandlers:
         """Handle /price command"""
         if not context.args:
             await update.message.reply_text(
-                "Please specify a cryptocurrency.\n"
-                "Example: /price bitcoin or /price BTC"
+                "Пожалуйста, укажите криптовалюту.\n"
+                "Пример: /price bitcoin или /price BTC"
             )
             return
 
@@ -66,8 +66,8 @@ class CommandHandlers:
 
         if not price_data:
             await update.message.reply_text(
-                f"Could not find cryptocurrency: {coin_input}\n"
-                "Please check the name and try again."
+                f"Не удалось найти криптовалюту: {coin_input}\n"
+                "Проверьте название и попробуйте снова."
             )
             return
 
@@ -88,7 +88,7 @@ class CommandHandlers:
         coins = self.crypto.get_top_coins(limit=limit)
 
         if not coins:
-            await update.message.reply_text("Could not fetch top cryptocurrencies.")
+            await update.message.reply_text("Не удалось получить топ криптовалют.")
             return
 
         message = format_top_coins(coins)
@@ -104,7 +104,7 @@ class CommandHandlers:
         coins = self.crypto.get_trending_coins()
 
         if not coins:
-            await update.message.reply_text("Could not fetch trending cryptocurrencies.")
+            await update.message.reply_text("Не удалось получить трендовые криптовалюты.")
             return
 
         message = format_trending_coins(coins)
@@ -135,8 +135,8 @@ class CommandHandlers:
             # Add to portfolio: /portfolio add <coin> <amount> <price>
             if len(context.args) < 4:
                 await update.message.reply_text(
-                    "Usage: /portfolio add <coin> <amount> <purchase_price>\n"
-                    "Example: /portfolio add bitcoin 0.5 30000"
+                    "Использование: /portfolio add [монета] [количество] [цена_покупки]\n"
+                    "Пример: /portfolio add bitcoin 0.5 30000"
                 )
                 return
 
@@ -149,39 +149,39 @@ class CommandHandlers:
 
                 self.db.add_portfolio_item(user_id, coin_id, amount, purchase_price)
                 await update.message.reply_text(
-                    f"✅ Added {amount} {coin_id.upper()} to your portfolio!"
+                    f"✅ Добавлено {amount} {coin_id.upper()} в ваше портфолио!"
                 )
 
             except ValueError:
-                await update.message.reply_text("Invalid amount or price. Please use numbers.")
+                await update.message.reply_text("Неверное количество или цена. Используйте числа.")
 
         elif action == 'remove':
             # Remove from portfolio: /portfolio remove <id>
             if len(context.args) < 2:
                 await update.message.reply_text(
-                    "Usage: /portfolio remove <id>\n"
-                    "Get the ID from /portfolio command"
+                    "Использование: /portfolio remove [id]\n"
+                    "Получите ID из команды /portfolio"
                 )
                 return
 
             try:
                 item_id = int(context.args[1])
                 if self.db.remove_portfolio_item(item_id, user_id):
-                    await update.message.reply_text("✅ Removed from portfolio!")
+                    await update.message.reply_text("✅ Удалено из портфолио!")
                 else:
-                    await update.message.reply_text("Item not found in your portfolio.")
+                    await update.message.reply_text("Позиция не найдена в вашем портфолио.")
 
             except ValueError:
-                await update.message.reply_text("Invalid ID. Please use a number.")
+                await update.message.reply_text("Неверный ID. Используйте число.")
 
         elif action == 'clear':
             # Clear portfolio
             self.db.clear_portfolio(user_id)
-            await update.message.reply_text("✅ Portfolio cleared!")
+            await update.message.reply_text("✅ Портфолио очищено!")
 
         else:
             await update.message.reply_text(
-                "Unknown action. Use: add, remove, or clear"
+                "Неизвестное действие. Используйте: add, remove или clear"
             )
 
     async def alert_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -201,8 +201,9 @@ class CommandHandlers:
             # Add alert: /alert add <coin> <above|below> <price>
             if len(context.args) < 4:
                 await update.message.reply_text(
-                    "Usage: /alert add <coin> <above|below> <price>\n"
-                    "Example: /alert add bitcoin above 50000"
+                    "Использование: /alert add [монета] [above|below] [цена]\n"
+                    "Пример: /alert add bitcoin above 50000\n"
+                    "above = выше, below = ниже"
                 )
                 return
 
@@ -210,50 +211,57 @@ class CommandHandlers:
             coin_id = self.crypto.normalize_coin_id(coin_input)
             condition = context.args[2].lower()
 
-            if condition not in ['above', 'below']:
-                await update.message.reply_text("Condition must be 'above' or 'below'")
+            if condition not in ['above', 'below', 'выше', 'ниже']:
+                await update.message.reply_text("Условие должно быть 'above' (выше) или 'below' (ниже)")
                 return
+
+            # Translate Russian to English
+            if condition == 'выше':
+                condition = 'above'
+            elif condition == 'ниже':
+                condition = 'below'
 
             try:
                 target_price = float(context.args[3])
                 self.db.add_alert(user_id, coin_id, target_price, condition)
+                condition_ru = 'выше' if condition == 'above' else 'ниже'
                 await update.message.reply_text(
-                    f"🔔 Alert set! You'll be notified when {coin_id.upper()} goes {condition} ${target_price:,.2f}"
+                    f"🔔 Алерт установлен! Вы получите уведомление когда {coin_id.upper()} будет {condition_ru} ${target_price:,.2f}"
                 )
 
             except ValueError:
-                await update.message.reply_text("Invalid price. Please use a number.")
+                await update.message.reply_text("Неверная цена. Используйте число.")
 
         elif action == 'remove':
             # Remove alert: /alert remove <id>
             if len(context.args) < 2:
                 await update.message.reply_text(
-                    "Usage: /alert remove <id>\n"
-                    "Get the ID from /alert command"
+                    "Использование: /alert remove [id]\n"
+                    "Получите ID из команды /alert"
                 )
                 return
 
             try:
                 alert_id = int(context.args[1])
                 if self.db.remove_alert(alert_id, user_id):
-                    await update.message.reply_text("✅ Alert removed!")
+                    await update.message.reply_text("✅ Алерт удален!")
                 else:
-                    await update.message.reply_text("Alert not found.")
+                    await update.message.reply_text("Алерт не найден.")
 
             except ValueError:
-                await update.message.reply_text("Invalid ID. Please use a number.")
+                await update.message.reply_text("Неверный ID. Используйте число.")
 
         else:
             await update.message.reply_text(
-                "Unknown action. Use: add or remove"
+                "Неизвестное действие. Используйте: add или remove"
             )
 
     async def convert_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle /convert command"""
         if len(context.args) < 3:
             await update.message.reply_text(
-                "Usage: /convert <amount> <from_coin> <to_coin>\n"
-                "Example: /convert 1 bitcoin ethereum"
+                "Использование: /convert [количество] [из_монеты] [в_монету]\n"
+                "Пример: /convert 1 bitcoin ethereum"
             )
             return
 
@@ -271,7 +279,7 @@ class CommandHandlers:
 
             if not result:
                 await update.message.reply_text(
-                    "Could not perform conversion. Please check the coin names."
+                    "Не удалось выполнить конвертацию. Проверьте названия монет."
                 )
                 return
 
@@ -279,14 +287,14 @@ class CommandHandlers:
             await update.message.reply_text(message, parse_mode='HTML')
 
         except ValueError:
-            await update.message.reply_text("Invalid amount. Please use a number.")
+            await update.message.reply_text("Неверное количество. Используйте число.")
 
     async def chart_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle /chart command"""
         if not context.args:
             await update.message.reply_text(
-                "Usage: /chart <coin> [days]\n"
-                "Example: /chart bitcoin 7"
+                "Использование: /chart [монета] [дней]\n"
+                "Пример: /chart bitcoin 7"
             )
             return
 
@@ -306,7 +314,7 @@ class CommandHandlers:
 
         if not prices:
             await update.message.reply_text(
-                f"Could not fetch price history for {coin_input}"
+                f"Не удалось получить историю цен для {coin_input}"
             )
             return
 
@@ -323,12 +331,12 @@ class CommandHandlers:
         change = ((last_price - first_price) / first_price) * 100
 
         message = f"""
-📊 <b>{coin_id.upper()}</b> - {days} Day Chart
+📊 <b>{coin_id.upper()}</b> - График за {days} дней
 
 {chart}
 
-Period Change: {change:+.2f}%
-Current Price: ${current_data['price']:,.2f}
+Изменение: {change:+.2f}%
+Текущая цена: ${current_data['price']:,.2f}
 """
         await update.message.reply_text(message.strip(), parse_mode='HTML')
 
@@ -336,8 +344,8 @@ Current Price: ${current_data['price']:,.2f}
         """Handle /info command"""
         if not context.args:
             await update.message.reply_text(
-                "Usage: /info <coin>\n"
-                "Example: /info bitcoin"
+                "Использование: /info [монета]\n"
+                "Пример: /info bitcoin"
             )
             return
 
@@ -353,17 +361,17 @@ Current Price: ${current_data['price']:,.2f}
 
         if not info:
             await update.message.reply_text(
-                f"Could not find information for {coin_input}"
+                f"Не удалось найти информацию о {coin_input}"
             )
             return
 
         message = f"""
 <b>{info['name']} ({info['symbol']})</b>
 
-Market Cap Rank: #{info['market_cap_rank']}
+Место по капитализации: #{info['market_cap_rank']}
 
 {info['description'][:300]}...
 
-🌐 Website: {info['homepage']}
+🌐 Сайт: {info['homepage']}
 """
         await update.message.reply_text(message.strip(), parse_mode='HTML')

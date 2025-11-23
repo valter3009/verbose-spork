@@ -94,12 +94,13 @@ class CryptoBot:
                 import asyncio
 
                 async def send_message():
+                    condition_ru = 'выше' if alert['condition'] == 'above' else 'ниже'
                     message = f"""
-🔔 <b>Price Alert Triggered!</b>
+🔔 <b>Сработал Ценовой Алерт!</b>
 
-{alert['coin_id'].upper()} is now {alert['condition']} ${alert['target_price']:,.2f}
+{alert['coin_id'].upper()} теперь {condition_ru} ${alert['target_price']:,.2f}
 
-Current Price: ${current_price:,.2f}
+Текущая цена: ${current_price:,.2f}
 """
                     try:
                         await self.application.bot.send_message(
@@ -134,7 +135,7 @@ Current Price: ${current_price:,.2f}
 
         if update and update.effective_message:
             await update.effective_message.reply_text(
-                "An error occurred while processing your request. Please try again."
+                "Произошла ошибка при обработке вашего запроса. Пожалуйста, попробуйте снова."
             )
 
     def run(self):

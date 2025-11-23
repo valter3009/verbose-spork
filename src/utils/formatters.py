@@ -45,17 +45,17 @@ def format_coin_price(data: Dict) -> str:
     message = f"""
 💰 <b>{coin_id}</b>
 
-Price: <b>{price}</b>
-24h Change: {change}
-Market Cap: {market_cap}
-24h Volume: {volume}
+Цена: <b>{price}</b>
+Изменение 24ч: {change}
+Капитализация: {market_cap}
+Объем 24ч: {volume}
 """
     return message.strip()
 
 
 def format_top_coins(coins: List[Dict]) -> str:
     """Format top coins list"""
-    message = f"{EMOJI_FIRE} <b>Top Cryptocurrencies</b>\n\n"
+    message = f"{EMOJI_FIRE} <b>Топ Криптовалют</b>\n\n"
 
     for coin in coins:
         rank_emoji = {1: '🥇', 2: '🥈', 3: '🥉'}.get(coin['rank'], f"{coin['rank']}.")
@@ -70,12 +70,12 @@ def format_top_coins(coins: List[Dict]) -> str:
 
 def format_trending_coins(coins: List[Dict]) -> str:
     """Format trending coins list"""
-    message = f"{EMOJI_ROCKET} <b>Trending Cryptocurrencies</b>\n\n"
+    message = f"{EMOJI_ROCKET} <b>Трендовые Криптовалюты</b>\n\n"
 
     for coin in coins:
         message += f"{coin['rank']}. <b>{coin['symbol']}</b> - {coin['name']}\n"
         if coin['market_cap_rank'] != 'N/A':
-            message += f"   Rank: #{coin['market_cap_rank']}\n"
+            message += f"   Место: #{coin['market_cap_rank']}\n"
         message += "\n"
 
     return message.strip()
@@ -84,9 +84,9 @@ def format_trending_coins(coins: List[Dict]) -> str:
 def format_portfolio(portfolio: List[Dict], prices: Dict) -> str:
     """Format portfolio with current values"""
     if not portfolio:
-        return "Your portfolio is empty. Use /portfolio add <coin> <amount> <price> to add coins."
+        return "Ваше портфолио пусто. Используйте /portfolio add [монета] [количество] [цена] для добавления."
 
-    message = "💼 <b>Your Portfolio</b>\n\n"
+    message = "💼 <b>Ваше Портфолио</b>\n\n"
     total_value = 0
     total_invested = 0
 
@@ -110,11 +110,11 @@ def format_portfolio(portfolio: List[Dict], prices: Dict) -> str:
             pl_sign = '+' if profit_loss >= 0 else ''
 
             message += f"<b>{coin_id.upper()}</b>\n"
-            message += f"  Amount: {amount:.8f}\n"
-            message += f"  Buy Price: {format_price(purchase_price)}\n"
-            message += f"  Current: {format_price(current_price)}\n"
-            message += f"  Value: {format_price(current_value)}\n"
-            message += f"  P/L: {pl_emoji} {pl_sign}{format_price(profit_loss)} ({pl_sign}{profit_loss_pct:.2f}%)\n\n"
+            message += f"  Количество: {amount:.8f}\n"
+            message += f"  Цена покупки: {format_price(purchase_price)}\n"
+            message += f"  Текущая цена: {format_price(current_price)}\n"
+            message += f"  Стоимость: {format_price(current_value)}\n"
+            message += f"  Прибыль/Убыток: {pl_emoji} {pl_sign}{format_price(profit_loss)} ({pl_sign}{profit_loss_pct:.2f}%)\n\n"
 
     if total_invested > 0:
         total_pl = total_value - total_invested
@@ -122,9 +122,9 @@ def format_portfolio(portfolio: List[Dict], prices: Dict) -> str:
         pl_emoji = EMOJI_CHART_UP if total_pl >= 0 else EMOJI_CHART_DOWN
 
         message += "─" * 30 + "\n"
-        message += f"<b>Total Invested:</b> {format_price(total_invested)}\n"
-        message += f"<b>Total Value:</b> {format_price(total_value)}\n"
-        message += f"<b>Total P/L:</b> {pl_emoji} {format_price(total_pl)} ({total_pl_pct:+.2f}%)"
+        message += f"<b>Всего вложено:</b> {format_price(total_invested)}\n"
+        message += f"<b>Текущая стоимость:</b> {format_price(total_value)}\n"
+        message += f"<b>Прибыль/Убыток:</b> {pl_emoji} {format_price(total_pl)} ({total_pl_pct:+.2f}%)"
 
     return message
 
@@ -132,19 +132,20 @@ def format_portfolio(portfolio: List[Dict], prices: Dict) -> str:
 def format_alerts(alerts: List[Dict]) -> str:
     """Format alerts list"""
     if not alerts:
-        return "You have no active alerts. Use /alert to create one."
+        return "У вас нет активных алертов. Используйте /alert для создания."
 
-    message = "🔔 <b>Your Price Alerts</b>\n\n"
+    message = "🔔 <b>Ваши Ценовые Алерты</b>\n\n"
 
     for alert in alerts:
         coin = alert['coin_id'].upper()
         price = format_price(alert['target_price'])
         condition = alert['condition']
+        condition_ru = 'выше' if condition == 'above' else 'ниже'
 
-        message += f"<b>{coin}</b> {condition} {price}\n"
+        message += f"<b>{coin}</b> {condition_ru} {price}\n"
         message += f"  ID: {alert['id']}\n\n"
 
-    message += "\nUse /alert remove <id> to delete an alert"
+    message += "\nИспользуйте /alert remove [id] для удаления алерта"
 
     return message
 
@@ -157,7 +158,7 @@ def format_conversion(data: Dict) -> str:
     to_amount = data['to_amount']
 
     message = f"""
-💱 <b>Conversion Result</b>
+💱 <b>Результат Конвертации</b>
 
 {from_amount:.8f} {from_coin}
 =

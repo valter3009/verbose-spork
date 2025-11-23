@@ -42,22 +42,22 @@ EMOJI_CROSS = '❌'
 
 # Messages
 WELCOME_MESSAGE = """
-🚀 <b>Welcome to CryptoBot!</b>
+🚀 <b>Добро пожаловать в CryptoBot!</b>
 
-Your ultimate companion for cryptocurrency tracking and portfolio management.
+Ваш надежный помощник для отслеживания криптовалют и управления портфолио.
 
-<b>Available commands:</b>
-/price [coin] - Get current price
-/top - Top 10 cryptocurrencies
-/portfolio - Manage your portfolio
-/alert - Set price alerts
-/convert - Convert between cryptocurrencies
-/trending - Trending coins
-/info - Detailed coin information
-/chart - Price charts
-/help - Show this help message
+<b>Доступные команды:</b>
+/price [монета] - Узнать текущую цену
+/top - Топ 10 криптовалют
+/portfolio - Управление портфолио
+/alert - Настроить ценовые алерты
+/convert - Конвертация валют
+/trending - Трендовые монеты
+/info - Подробная информация о монете
+/chart - График цены
+/help - Показать эту справку
 
-<b>Example:</b> /price bitcoin
+<b>Пример:</b> /price bitcoin
 """
 
 HELP_MESSAGE = WELCOME_MESSAGE
