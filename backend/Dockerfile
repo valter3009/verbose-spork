@@ -19,7 +19,9 @@ WORKDIR /app
 
 # Копировать package.json и установить зависимости
 COPY package*.json ./
-RUN npm install --production
+RUN npm config set fetch-timeout 600000 && \
+    npm config set fetch-retries 5 && \
+    npm install --production --legacy-peer-deps --prefer-offline --no-audit
 
 # Копировать исходный код
 COPY . .
