@@ -4,13 +4,16 @@ import dotenv from 'dotenv';
 import './database/index.js';
 import routes from './routes/index.js';
 import { sendMessage, executeTool, processToolCalls } from './services/claudeService.js';
-import { handleIncomingMessage } from './services/whatsappService.js';
+import { initWhatsApp, getWhatsAppStatus, disconnectWhatsApp } from './services/whatsappService.js';
 import { Conversation, Message } from './models/Conversation.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Инициализировать WhatsApp при запуске
+initWhatsApp();
 
 // Middleware
 app.use(cors());
@@ -179,20 +182,36 @@ app.post('/api/chat/tools', async (req, res) => {
   }
 });
 
-// WhatsApp Webhook
-app.post('/api/whatsapp/webhook', async (req, res) => {
+// WhatsApp Status - получить статус подключения и QR код
+app.get('/api/whatsapp/status', (req, res) => {
   try {
-    const { From, Body } = req.body;
-
-    // Обработать сообщение асинхронно
-    handleIncomingMessage(From, Body).catch(err => {
-      console.error('Error processing WhatsApp message:', err);
-    });
-
-    // Ответить Twilio немедленно
-    res.status(200).send('OK');
+    const status = getWhatsAppStatus();
+    res.json(status);
   } catch (error) {
-    console.error('WhatsApp webhook error:', error);
+    console.error('WhatsApp status error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// WhatsApp Disconnect - отключить WhatsApp
+app.post('/api/whatsapp/disconnect', async (req, res) => {
+  try {
+    await disconnectWhatsApp();
+    res.json({ success: true, message: 'WhatsApp отключен' });
+  } catch (error) {
+    console.error('WhatsApp disconnect error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// WhatsApp Reconnect - переподключить WhatsApp
+app.post('/api/whatsapp/reconnect', async (req, res) => {
+  try {
+    await disconnectWhatsApp();
+    initWhatsApp();
+    res.json({ success: true, message: 'WhatsApp переподключается...' });
+  } catch (error) {
+    console.error('WhatsApp reconnect error:', error);
     res.status(500).json({ error: error.message });
   }
 });

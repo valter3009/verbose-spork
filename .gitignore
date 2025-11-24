@@ -43,3 +43,7 @@ coverage/
 .cache/
 tmp/
 temp/
+
+# WhatsApp Web session
+.wwebjs_auth/
+.wwebjs_cache/

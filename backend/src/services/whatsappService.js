@@ -1,11 +1,12 @@
-import twilio from 'twilio';
+import pkg from 'whatsapp-web.js';
+const { Client, LocalAuth } = pkg;
+import qrcode from 'qrcode-terminal';
 import { Conversation, Message } from '../models/Conversation.js';
 import { sendMessage, executeTool } from './claudeService.js';
 
-const twilioClient = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+let whatsappClient = null;
+let isReady = false;
+let qrCodeData = null;
 
 const WELCOME_MESSAGE = `👋 Привет! Я твой личный AI-помощник.
 
@@ -21,17 +22,104 @@ const WELCOME_MESSAGE = `👋 Привет! Я твой личный AI-помо
 
 Просто напиши что тебе нужно, и я помогу!`;
 
+// Инициализация WhatsApp клиента
+export const initWhatsApp = () => {
+  if (whatsappClient) {
+    console.log('⚠️  WhatsApp клиент уже инициализирован');
+    return;
+  }
+
+  console.log('🔄 Инициализация WhatsApp клиента...');
+
+  whatsappClient = new Client({
+    authStrategy: new LocalAuth({
+      dataPath: './.wwebjs_auth'
+    }),
+    puppeteer: {
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-gpu'
+      ]
+    }
+  });
+
+  // QR Code для подключения
+  whatsappClient.on('qr', (qr) => {
+    console.log('\n📱 QR CODE для подключения WhatsApp:\n');
+    qrcode.generate(qr, { small: true });
+    console.log('\n👆 Отсканируйте QR код в WhatsApp: Настройки > Связанные устройства > Связать устройство\n');
+    qrCodeData = qr;
+  });
+
+  // Готовность
+  whatsappClient.on('ready', () => {
+    console.log('✅ WhatsApp клиент готов к работе!');
+    isReady = true;
+    qrCodeData = null;
+  });
+
+  // Аутентификация
+  whatsappClient.on('authenticated', () => {
+    console.log('🔐 WhatsApp аутентификация успешна');
+  });
+
+  // Ошибка аутентификации
+  whatsappClient.on('auth_failure', (msg) => {
+    console.error('❌ Ошибка аутентификации WhatsApp:', msg);
+    isReady = false;
+  });
+
+  // Отключение
+  whatsappClient.on('disconnected', (reason) => {
+    console.log('⚠️  WhatsApp отключен:', reason);
+    isReady = false;
+  });
+
+  // Обработка входящих сообщений
+  whatsappClient.on('message', async (msg) => {
+    try {
+      // Игнорировать сообщения от групп и собственные
+      if (msg.from.includes('@g.us') || msg.fromMe) {
+        return;
+      }
+
+      console.log(`📨 Новое сообщение от ${msg.from}: ${msg.body}`);
+      await handleIncomingMessage(msg.from, msg.body);
+    } catch (error) {
+      console.error('❌ Ошибка обработки сообщения:', error);
+    }
+  });
+
+  // Запуск клиента
+  whatsappClient.initialize();
+};
+
 // Отправка сообщения в WhatsApp
 export const sendWhatsAppMessage = async (to, body) => {
+  if (!isReady || !whatsappClient) {
+    throw new Error('WhatsApp клиент не готов');
+  }
+
   try {
-    const message = await twilioClient.messages.create({
-      from: process.env.TWILIO_WHATSAPP_NUMBER,
-      to: `whatsapp:${to}`,
-      body: body
-    });
-    return message;
+    // Форматирование номера (если нужно)
+    let chatId = to;
+    if (!to.includes('@c.us')) {
+      // Удалить все нецифровые символы
+      const cleanNumber = to.replace(/\D/g, '');
+      chatId = `${cleanNumber}@c.us`;
+    }
+
+    await whatsappClient.sendMessage(chatId, body);
+    console.log(`✅ Сообщение отправлено на ${to}`);
   } catch (error) {
-    console.error('Error sending WhatsApp message:', error);
+    console.error('❌ Ошибка отправки сообщения:', error);
     throw error;
   }
 };
@@ -39,8 +127,8 @@ export const sendWhatsAppMessage = async (to, body) => {
 // Обработка входящего сообщения из WhatsApp
 export const handleIncomingMessage = async (from, body) => {
   try {
-    // Убрать префикс whatsapp: если есть
-    const phoneNumber = from.replace('whatsapp:', '');
+    // Очистить номер
+    const phoneNumber = from.replace('@c.us', '');
 
     // Найти или создать разговор для этого номера
     let conversation = Conversation.findByWhatsAppNumber(phoneNumber);
@@ -52,7 +140,7 @@ export const handleIncomingMessage = async (from, body) => {
       });
 
       // Отправить приветственное сообщение
-      await sendWhatsAppMessage(phoneNumber, WELCOME_MESSAGE);
+      await sendWhatsAppMessage(from, WELCOME_MESSAGE);
       return;
     }
 
@@ -133,13 +221,47 @@ export const handleIncomingMessage = async (from, body) => {
     }
 
     // Отправить ответ в WhatsApp
-    await sendWhatsAppMessage(phoneNumber, assistantMessage);
+    await sendWhatsAppMessage(from, assistantMessage);
 
     return { success: true };
   } catch (error) {
-    console.error('Error handling WhatsApp message:', error);
+    console.error('❌ Ошибка обработки WhatsApp сообщения:', error);
+
+    // Отправить сообщение об ошибке пользователю
+    try {
+      await sendWhatsAppMessage(from, '❌ Произошла ошибка при обработке вашего сообщения. Попробуйте позже.');
+    } catch (sendError) {
+      console.error('❌ Не удалось отправить сообщение об ошибке:', sendError);
+    }
+
     throw error;
   }
 };
 
-export default { sendWhatsAppMessage, handleIncomingMessage };
+// Получить статус WhatsApp
+export const getWhatsAppStatus = () => {
+  return {
+    isReady,
+    qrCode: qrCodeData,
+    clientExists: !!whatsappClient
+  };
+};
+
+// Отключить WhatsApp
+export const disconnectWhatsApp = async () => {
+  if (whatsappClient) {
+    await whatsappClient.destroy();
+    whatsappClient = null;
+    isReady = false;
+    qrCodeData = null;
+    console.log('🔌 WhatsApp клиент отключен');
+  }
+};
+
+export default {
+  initWhatsApp,
+  sendWhatsAppMessage,
+  handleIncomingMessage,
+  getWhatsAppStatus,
+  disconnectWhatsApp
+};
