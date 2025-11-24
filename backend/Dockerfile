@@ -9,7 +9,10 @@ RUN apk add --no-cache \
     freetype-dev \
     harfbuzz \
     ca-certificates \
-    ttf-freefont
+    ttf-freefont \
+    python3 \
+    make \
+    g++
 
 # Переменные для Puppeteer
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
