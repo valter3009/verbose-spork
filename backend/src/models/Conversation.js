@@ -3,13 +3,14 @@ import db from '../database/index.js';
 export const Conversation = {
   create: (data) => {
     const stmt = db.prepare(`
-      INSERT INTO conversations (title, platform, whatsapp_number)
-      VALUES (?, ?, ?)
+      INSERT INTO conversations (title, platform, whatsapp_number, telegram_id)
+      VALUES (?, ?, ?, ?)
     `);
     const result = stmt.run(
       data.title || 'Новый разговор',
       data.platform || 'web',
-      data.whatsapp_number || null
+      data.whatsapp_number || null,
+      data.telegram_id || null
     );
     return Conversation.findById(result.lastInsertRowid);
   },
@@ -24,6 +25,10 @@ export const Conversation = {
 
   findByWhatsAppNumber: (number) => {
     return db.prepare('SELECT * FROM conversations WHERE whatsapp_number = ? ORDER BY updated_at DESC LIMIT 1').get(number);
+  },
+
+  findByTelegramId: (telegramId) => {
+    return db.prepare('SELECT * FROM conversations WHERE telegram_id = ? ORDER BY updated_at DESC LIMIT 1').get(telegramId);
   },
 
   update: (id, data) => {

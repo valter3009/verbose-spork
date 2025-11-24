@@ -1,11 +1,13 @@
 # Frontend Dockerfile
-FROM node:18-alpine as build
+FROM node:18-alpine AS build
 
 WORKDIR /app
 
 # Копировать package.json и установить зависимости
 COPY package*.json ./
-RUN npm install
+RUN npm config set fetch-timeout 300000 && \
+    npm config set fetch-retries 3 && \
+    npm install --legacy-peer-deps
 
 # Копировать исходный код
 COPY . .

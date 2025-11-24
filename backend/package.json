@@ -1,14 +1,14 @@
 {
   "name": "ai-assistant-backend",
   "version": "1.0.0",
-  "description": "Backend for Personal AI Assistant with Claude and WhatsApp integration",
+  "description": "Backend for Personal AI Assistant with Claude and Telegram integration",
   "main": "src/server.js",
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js"
   },
-  "keywords": ["ai", "assistant", "claude", "whatsapp"],
+  "keywords": ["ai", "assistant", "claude", "telegram"],
   "author": "",
   "license": "MIT",
   "dependencies": {
@@ -17,8 +17,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "better-sqlite3": "^9.2.2",
-    "whatsapp-web.js": "^1.23.0",
-    "qrcode-terminal": "^0.12.0",
+    "node-telegram-bot-api": "^0.66.0",
     "date-fns": "^3.0.6"
   },
   "devDependencies": {
