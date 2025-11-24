@@ -1,191 +1,289 @@
-# Универсальный ИИ-Ассистент на базе Claude
+# 🤖 Личный AI-помощник
 
-Интеллектуальный Telegram-бот, который автоматически создает структуры данных для организации любой информации из вашей жизни.
+Полнофункциональное веб-приложение с интеграцией Claude AI и WhatsApp для управления всеми аспектами вашей жизни.
 
-## Возможности
+## ✨ Возможности
 
-- **Автоматическое создание структур данных**: Бот самостоятельно решает, какие категории и схемы нужны для хранения ваших данных
-- **Гибридное хранение**: Частые данные хранятся в отдельных таблицах PostgreSQL, редкие - в JSONB формате
-- **Интеллектуальная группировка**: Похожие типы данных автоматически группируются (фитнес, финансы, идеи и т.д.)
-- **Предиктивные кнопки**: Бот предлагает 3-5 следующих действий на основе контекста
-- **Адаптивность**: Система отслеживает ваши паттерны и адаптируется под ваши привычки
+### 🎯 Основной функционал
+- **Заметки** - сохраняйте идеи, мысли и важную информацию
+- **Задачи** - управляйте задачами с приоритетами и сроками
+- **Напоминания** - не забывайте о важных событиях
+- **Цели** - ставьте цели и отслеживайте прогресс
+- **Дневник** - ведите личный дневник с настроением и энергией
+- **Контакты** - храните информацию о важных людях
+- **Расходы** - отслеживайте финансы и категоризируйте траты
+- **Привычки** - формируйте полезные привычки с отслеживанием серий
+- **Память AI** - AI запоминает важные факты о вас
 
-## Примеры использования
+### 🤖 AI-помощник (Claude)
+- Общайтесь с AI через веб-интерфейс или WhatsApp
+- AI имеет доступ ко всем вашим данным через function calling
+- Проактивные советы и анализ паттернов
+- Умное структурирование информации
+- Реал-тайм стриминг ответов
 
-**Фитнес:**
-```
-Вы: Сегодня пробежал 5км за 28 минут
-Бот: Записал пробежку! 5 км за 28 минут - темп 5.6 мин/км. Создал раздел для отслеживания тренировок 🏃
-```
+### 📱 WhatsApp интеграция
+- Полный доступ к AI-помощнику через WhatsApp
+- Все функции доступны в мессенджере
+- Синхронизация между веб и WhatsApp
+- Приветственное сообщение при подключении
 
-**Криптовалюты:**
-```
-Вы: Купил 1 BTC за 88000
-Бот: Записал покупку 1 BTC по $88,000! 💰
-```
+## 🏗️ Архитектура
 
-**Идеи:**
-```
-Вы: Идея для стартапа: AI помощник для садоводов
-Бот: Сохранил идею! 💡 Создал раздел для хранения идей.
-```
+### Backend (Node.js + Express)
+- **База данных**: SQLite (9 сущностей + разговоры)
+- **AI**: Claude 3.5 Sonnet с function calling
+- **WhatsApp**: Twilio API
+- **API**: REST endpoints для всех сущностей
+- **Streaming**: Server-Sent Events для реал-тайм чата
 
-## Архитектура
+### Frontend (React + Vite)
+- **UI**: TailwindCSS с темной темой и градиентами
+- **Роутинг**: React Router
+- **Состояние**: TanStack Query (React Query)
+- **Иконки**: Lucide React
+- **Анимации**: Framer Motion
+- **Markdown**: React Markdown для форматирования
 
-```
-src/
-├── bot.ts                  # Основной файл бота
-├── claude.ts               # Интеграция с Claude API
-├── prompts/
-│   └── system-prompt.ts    # Системный промпт для Claude
-├── database/
-│   ├── db.ts              # Подключение к PostgreSQL
-│   └── schema-manager.ts  # Управление динамическими схемами
-├── handlers/
-│   ├── message-handler.ts # Обработка сообщений
-│   └── button-handler.ts  # Обработка кнопок
-└── types/
-    └── claude-response.ts # TypeScript типы
-```
+## 🚀 Установка и запуск
 
-## Структура JSON-ответа Claude
+### Требования
+- Node.js 18+
+- npm или yarn
 
-Бот работает на основе структурированных JSON-ответов от Claude:
-
-```json
-{
-  "intent": "create|read|update|delete|analyze|question",
-  "category": "название_категории",
-  "subcategory": "название_подкатегории_или_null",
-  "action": {
-    "type": "тип_действия",
-    "params": {}
-  },
-  "schema_decision": {
-    "needs_new_schema": true/false,
-    "storage_type": "table|jsonb",
-    "reason": "почему выбран этот тип хранения",
-    "schema": {...}
-  },
-  "extracted_data": {},
-  "response": {
-    "text": "Ответ пользователю",
-    "buttons": [...]
-  },
-  "metadata": {
-    "confidence": 0.95,
-    "needs_clarification": false
-  }
-}
-```
-
-## Установка и запуск
-
-### Вариант 1: Docker (рекомендуется)
-
-1. Убедитесь, что установлены Docker и Docker Compose
-
-2. Создайте файл `.env` (или используйте существующий):
+### 1. Клонирование репозитория
 ```bash
-cp .env.example .env
+git clone <repository-url>
+cd verbose-spork
 ```
 
-3. Отредактируйте `.env` и добавьте ваши токены:
-```env
-TELEGRAM_BOT_TOKEN=your_telegram_bot_token
-CLAUDE_API_KEY=your_claude_api_key
-```
+### 2. Настройка Backend
 
-4. Запустите проект:
 ```bash
-docker-compose up -d
-```
+cd backend
 
-### Вариант 2: Локальная разработка
-
-1. Установите зависимости:
-```bash
+# Установка зависимостей
 npm install
-```
 
-2. Убедитесь, что PostgreSQL запущен локально:
-```bash
-# Пример для macOS
-brew services start postgresql
+# Создать .env файл
+cp .env.example .env
 
-# Создайте базу данных
-createdb assistant_db
-```
+# Настроить переменные окружения в .env:
+# - ANTHROPIC_API_KEY (ваш API ключ Claude)
+# - TWILIO_ACCOUNT_SID (для WhatsApp)
+# - TWILIO_AUTH_TOKEN (для WhatsApp)
+# - TWILIO_WHATSAPP_NUMBER (для WhatsApp)
 
-3. Создайте `.env` файл с вашими настройками
-
-4. Соберите проект:
-```bash
-npm run build
-```
-
-5. Запустите бота:
-```bash
+# Запустить сервер
 npm start
-```
 
-Для разработки с hot-reload:
-```bash
+# Или в режиме разработки
 npm run dev
 ```
 
-## Требования
+Backend запустится на `http://localhost:5000`
 
-- Node.js 20+
-- PostgreSQL 16+
-- Telegram Bot Token (получить у [@BotFather](https://t.me/BotFather))
-- Claude API Key (получить на [console.anthropic.com](https://console.anthropic.com))
+### 3. Настройка Frontend
 
-## База данных
+```bash
+cd frontend
 
-Бот автоматически создает следующие таблицы:
+# Установка зависимостей
+npm install
 
-- `users` - пользователи бота
-- `categories` - зарегистрированные категории данных
-- `user_data_jsonb` - данные в JSONB формате
-- `user_patterns` - паттерны использования для адаптации
-- `conversation_history` - история диалогов
-- Динамические таблицы для каждой категории (создаются автоматически)
-
-## Технологии
-
-- **TypeScript** - типизированный JavaScript
-- **Telegraf** - фреймворк для Telegram ботов
-- **Anthropic Claude API** - интеллект бота
-- **PostgreSQL** - база данных
-- **Docker** - контейнеризация
-
-## Разработка
-
-### Структура промпта
-
-Системный промпт находится в `src/prompts/system-prompt.ts` и включает:
-- Основные принципы работы
-- Правила принятия решений
-- Примеры для few-shot learning
-- Инструкции по генерации JSON
-
-### Добавление новых действий
-
-1. Добавьте обработку в `ButtonHandler` (`src/handlers/button-handler.ts`)
-2. Убедитесь, что Claude возвращает правильный `action` в JSON
-
-### Настройка модели Claude
-
-По умолчанию используется `claude-3-5-sonnet-20241022`. Для изменения:
-```env
-CLAUDE_MODEL=claude-3-opus-20240229
+# Запустить dev сервер
+npm run dev
 ```
 
-## Лицензия
+Frontend запустится на `http://localhost:3000`
+
+### 4. Настройка WhatsApp (автоматически!)
+
+WhatsApp подключается автоматически через **whatsapp-web.js** (бесплатно, работает в России):
+
+1. Запустите backend: `npm start`
+2. В консоли появится QR-код
+3. Откройте WhatsApp на телефоне
+4. Перейдите: **Настройки → Связанные устройства → Связать устройство**
+5. Отсканируйте QR-код из консоли
+6. Готово! Бот подключен ✅
+
+**Важно:**
+- Телефон с WhatsApp должен быть онлайн
+- QR-код показывается только при первом подключении
+- Сессия сохраняется в папке `.wwebjs_auth/`
+- Не требует регистрации или платных сервисов
+
+**Альтернативы (если нужно):**
+- **Green API** - российский сервис (платно)
+- **Chat-API.com** - международный сервис (платно)
+
+## 📁 Структура проекта
+
+```
+verbose-spork/
+├── backend/
+│   ├── src/
+│   │   ├── database/       # Схема БД и инициализация
+│   │   ├── models/         # 9 моделей данных
+│   │   ├── routes/         # API endpoints
+│   │   ├── services/       # Claude AI & WhatsApp сервисы
+│   │   └── server.js       # Основной сервер
+│   ├── package.json
+│   └── .env.example
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/     # React компоненты
+│   │   │   ├── Sidebar.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Chat.jsx
+│   │   │   └── MessageBubble.jsx
+│   │   ├── pages/          # Страницы для всех сущностей
+│   │   ├── services/       # API клиент
+│   │   ├── App.jsx         # Роутинг
+│   │   └── main.jsx        # Точка входа
+│   ├── package.json
+│   └── vite.config.js
+│
+└── README.md
+```
+
+## 🎨 Дизайн
+
+### Цветовая схема
+- **Фон**: Темный градиент (slate-950 → purple-950)
+- **Акценты**: Фиолетово-розовый градиент (purple-500 → pink-500)
+- **WhatsApp**: Зеленый градиент (green-500 → emerald-500)
+- **Карточки**: Стеклянный эффект с backdrop-blur
+
+### Компоненты UI
+- Glass cards с прозрачностью и размытием
+- Градиентные кнопки и текст
+- Sidebar с иконками навигации
+- Адаптивный дизайн для мобильных и десктопа
+
+## 🔧 API Endpoints
+
+### Базовый URL: `/api`
+
+#### Сущности (CRUD для всех)
+- `GET /api/{entity}` - получить все
+- `GET /api/{entity}/:id` - получить по ID
+- `POST /api/{entity}` - создать
+- `PUT /api/{entity}/:id` - обновить
+- `DELETE /api/{entity}/:id` - удалить
+
+Где `{entity}` может быть:
+- notes, tasks, reminders, goals, journals, contacts, expenses, habits, memories
+
+#### AI Chat
+- `POST /api/chat` - отправить сообщение (streaming SSE)
+- `POST /api/chat/tools` - выполнить tool calls
+
+#### WhatsApp
+- `POST /api/whatsapp/webhook` - webhook для входящих сообщений
+
+#### Dashboard
+- `GET /api/dashboard/stats` - получить статистику
+
+## 🤖 Claude AI Functions
+
+AI имеет доступ к следующим функциям:
+
+**Notes**: create_note, get_notes, update_note, delete_note
+**Tasks**: create_task, get_tasks, update_task, delete_task
+**Reminders**: create_reminder, get_reminders, update_reminder, delete_reminder
+**Goals**: create_goal, get_goals, update_goal, delete_goal
+**Journals**: create_journal, get_journals, update_journal
+**Contacts**: create_contact, get_contacts, update_contact, delete_contact
+**Expenses**: create_expense, get_expenses, delete_expense
+**Habits**: create_habit, get_habits, update_habit, delete_habit
+**Memories**: create_memory, get_memories, update_memory, delete_memory
+
+## 📱 Использование через WhatsApp
+
+После подключения (сканирование QR-кода):
+
+1. Просто напишите боту на WhatsApp
+2. Первое сообщение вызовет приветствие
+3. Все функции AI доступны через чат
+
+Примеры команд:
+- "Добавь задачу: купить молоко"
+- "Напомни мне через 30 минут позвонить маме"
+- "Сколько я потратил в этом месяце?"
+- "Покажи мои активные цели"
+- "Запиши в дневник: отличный день!"
+
+## 🔐 Безопасность
+
+- API ключи хранятся в `.env` (не коммитить!)
+- База данных SQLite локально
+- WhatsApp через защищенный Twilio API
+- CORS настроен для frontend
+
+## 🚢 Деплой
+
+### Backend
+- Развернуть на любом Node.js хостинге (Heroku, Railway, Render)
+- Настроить переменные окружения
+- Настроить публичный URL для WhatsApp webhook
+
+### Frontend
+- Собрать: `npm run build`
+- Развернуть на Vercel, Netlify или любом статическом хостинге
+- Обновить API_BASE в production
+
+### База данных
+- SQLite файл автоматически создастся
+- Для продакшена рекомендуется PostgreSQL или MySQL
+
+## 📝 Лицензия
 
 MIT
 
-## Поддержка
+## 👨‍💻 Автор
 
-По вопросам и предложениям создавайте Issues в репозитории.
+Создано с помощью Claude AI
+
+---
+
+## 🎯 Roadmap
+
+- [ ] Мобильное приложение (React Native)
+- [ ] Telegram бот интеграция
+- [ ] Голосовые сообщения с транскрипцией
+- [ ] Умные уведомления на основе AI
+- [ ] Экспорт данных (JSON, CSV, PDF)
+- [ ] Темы оформления (light mode)
+- [ ] Мультиязычность
+- [ ] Шаринг целей и задач
+- [ ] Аналитика и инсайты от AI
+- [ ] Календарь-вид для задач и напоминаний
+
+## 🤝 Вклад
+
+Pull requests приветствуются! Для больших изменений сначала откройте issue.
+
+## ❓ FAQ
+
+**Q: Как получить Claude API ключ?**
+A: Зарегистрируйтесь на [console.anthropic.com](https://console.anthropic.com)
+
+**Q: WhatsApp обязателен?**
+A: Нет, приложение работает и без WhatsApp через веб-интерфейс
+
+**Q: Можно ли использовать другую LLM?**
+A: Да, но потребуется адаптация сервиса (Claude API специфичен)
+
+**Q: Данные хранятся в облаке?**
+A: Нет, все данные локально в SQLite (кроме API запросов к Claude)
+
+## 📞 Поддержка
+
+Если возникли вопросы или проблемы, создайте issue в репозитории.
+
+---
+
+**Наслаждайтесь вашим личным AI-помощником! 🚀**
