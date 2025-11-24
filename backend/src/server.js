@@ -1,13 +1,15 @@
+import dotenv from 'dotenv';
+
+// ВАЖНО: Загрузить переменные окружения ДО импорта других модулей
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import './database/index.js';
 import routes from './routes/index.js';
 import { sendMessage, executeTool, processToolCalls } from './services/claudeService.js';
 import { initTelegram, getTelegramStatus, stopTelegram } from './services/telegramService.js';
 import { Conversation, Message } from './models/Conversation.js';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
