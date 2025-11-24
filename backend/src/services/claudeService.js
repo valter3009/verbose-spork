@@ -10,9 +10,19 @@ import { Expense } from '../models/Expense.js';
 import { Habit } from '../models/Habit.js';
 import { Memory } from '../models/Memory.js';
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-});
+// Ленивая инициализация клиента - создаем только когда нужен
+let client = null;
+const getClient = () => {
+  if (!client) {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      throw new Error('ANTHROPIC_API_KEY не установлен в переменных окружения');
+    }
+    console.log('🔑 Инициализация Claude API клиента...');
+    client = new Anthropic({ apiKey });
+  }
+  return client;
+};
 
 // Выполнение tool call
 export const executeTool = (toolName, toolInput) => {
@@ -138,7 +148,7 @@ export const sendMessage = async (messages, stream = true) => {
 
     const fullSystemPrompt = systemPrompt + memoryContext;
 
-    const response = await client.messages.create({
+    const response = await getClient().messages.create({
       model: 'claude-3-5-haiku-20241022',
       max_tokens: 4096,
       system: fullSystemPrompt,
