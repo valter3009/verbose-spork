@@ -47,6 +47,58 @@
 
 ## 🚀 Установка и запуск
 
+### Быстрый старт с Docker (рекомендуется)
+
+**Одна команда для запуска:**
+
+```bash
+git pull origin claude/setup-ai-assistant-app-01CZc7TQkPUTbT41ELW1Siqc && echo "ANTHROPIC_API_KEY=ваш_api_ключ_здесь" > .env && docker-compose down -v && docker-compose build && docker-compose up -d && echo "✅ Запущено! Frontend: http://localhost:3000 | Backend: http://localhost:5000" && docker-compose logs -f backend
+```
+
+**Замените `ваш_api_ключ_здесь` на ваш реальный Claude API ключ!**
+
+**Или используйте скрипт:**
+
+```bash
+git pull origin claude/setup-ai-assistant-app-01CZc7TQkPUTbT41ELW1Siqc
+./start.sh
+```
+
+**Что делает команда:**
+1. Подтягивает последние изменения
+2. Создает .env с вашим API ключом
+3. Останавливает старые контейнеры
+4. Собирает новые образы
+5. Запускает приложение
+6. Показывает QR-код WhatsApp
+
+**После запуска:**
+- 🌐 Frontend: http://localhost:3000
+- 🔧 Backend: http://localhost:5000
+- 📱 QR-код: `docker-compose logs backend`
+
+**Управление:**
+```bash
+# Посмотреть логи
+docker-compose logs -f
+
+# Только backend логи (для QR-кода)
+docker-compose logs -f backend
+
+# Остановить
+docker-compose down
+
+# Перезапустить
+docker-compose restart
+
+# Полная очистка (удалит данные!)
+docker-compose down -v
+```
+
+---
+
+### Ручная установка (без Docker)
+
 ### Требования
 - Node.js 18+
 - npm или yarn
