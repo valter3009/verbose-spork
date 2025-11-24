@@ -133,12 +133,13 @@ db.exec(`
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
-  -- Разговоры (для веб и WhatsApp)
+  -- Разговоры (для веб, WhatsApp и Telegram)
   CREATE TABLE IF NOT EXISTS conversations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT,
-    platform TEXT DEFAULT 'web' CHECK(platform IN ('web', 'whatsapp')),
+    platform TEXT DEFAULT 'web' CHECK(platform IN ('web', 'whatsapp', 'telegram')),
     whatsapp_number TEXT,
+    telegram_id INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );

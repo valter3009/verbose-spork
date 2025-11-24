@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import './database/index.js';
 import routes from './routes/index.js';
 import { sendMessage, executeTool, processToolCalls } from './services/claudeService.js';
-import { initWhatsApp, getWhatsAppStatus, disconnectWhatsApp } from './services/whatsappService.js';
+import { initTelegram, getTelegramStatus, stopTelegram } from './services/telegramService.js';
 import { Conversation, Message } from './models/Conversation.js';
 
 dotenv.config();
@@ -12,8 +12,8 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Инициализировать WhatsApp при запуске
-initWhatsApp();
+// Инициализировать Telegram бота при запуске
+initTelegram();
 
 // Middleware
 app.use(cors());
@@ -182,36 +182,36 @@ app.post('/api/chat/tools', async (req, res) => {
   }
 });
 
-// WhatsApp Status - получить статус подключения и QR код
-app.get('/api/whatsapp/status', (req, res) => {
+// Telegram Status - получить статус бота
+app.get('/api/telegram/status', (req, res) => {
   try {
-    const status = getWhatsAppStatus();
+    const status = getTelegramStatus();
     res.json(status);
   } catch (error) {
-    console.error('WhatsApp status error:', error);
+    console.error('Telegram status error:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// WhatsApp Disconnect - отключить WhatsApp
-app.post('/api/whatsapp/disconnect', async (req, res) => {
+// Telegram Stop - остановить бота
+app.post('/api/telegram/stop', async (req, res) => {
   try {
-    await disconnectWhatsApp();
-    res.json({ success: true, message: 'WhatsApp отключен' });
+    await stopTelegram();
+    res.json({ success: true, message: 'Telegram бот остановлен' });
   } catch (error) {
-    console.error('WhatsApp disconnect error:', error);
+    console.error('Telegram stop error:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// WhatsApp Reconnect - переподключить WhatsApp
-app.post('/api/whatsapp/reconnect', async (req, res) => {
+// Telegram Restart - перезапустить бота
+app.post('/api/telegram/restart', async (req, res) => {
   try {
-    await disconnectWhatsApp();
-    initWhatsApp();
-    res.json({ success: true, message: 'WhatsApp переподключается...' });
+    await stopTelegram();
+    initTelegram();
+    res.json({ success: true, message: 'Telegram бот перезапускается...' });
   } catch (error) {
-    console.error('WhatsApp reconnect error:', error);
+    console.error('Telegram restart error:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -225,7 +225,7 @@ app.listen(PORT, () => {
   console.log(`\n🚀 AI Assistant Backend запущен на порту ${PORT}`);
   console.log(`📡 API: http://localhost:${PORT}/api`);
   console.log(`💬 Chat: http://localhost:${PORT}/api/chat`);
-  console.log(`📱 WhatsApp Webhook: http://localhost:${PORT}/api/whatsapp/webhook\n`);
+  console.log(`🤖 Telegram Bot: Ready to receive messages\n`);
 });
 
 export default app;

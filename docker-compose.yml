@@ -10,11 +10,10 @@ services:
     environment:
       - PORT=5000
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - DATABASE_PATH=/app/data/database.sqlite
       - NODE_ENV=production
     volumes:
-      # Сохранение WhatsApp сессии
-      - whatsapp_data:/app/.wwebjs_auth
       # Сохранение базы данных
       - db_data:/app/data
     networks:
@@ -44,7 +43,5 @@ networks:
     driver: bridge
 
 volumes:
-  whatsapp_data:
-    driver: local
   db_data:
     driver: local

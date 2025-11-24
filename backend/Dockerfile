@@ -1,22 +1,11 @@
 # Backend Dockerfile
 FROM node:18-alpine
 
-# Установить зависимости для Puppeteer (для WhatsApp)
+# Установить зависимости для компиляции нативных модулей (better-sqlite3)
 RUN apk add --no-cache \
-    chromium \
-    nss \
-    freetype \
-    freetype-dev \
-    harfbuzz \
-    ca-certificates \
-    ttf-freefont \
     python3 \
     make \
     g++
-
-# Переменные для Puppeteer
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 WORKDIR /app
 
@@ -29,8 +18,8 @@ RUN npm config set fetch-timeout 300000 && \
 # Копировать исходный код
 COPY . .
 
-# Создать директории для данных
-RUN mkdir -p /app/.wwebjs_auth /app/data
+# Создать директорию для данных
+RUN mkdir -p /app/data
 
 EXPOSE 5000
 
